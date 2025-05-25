@@ -3,6 +3,7 @@ from PIL import Image, ImageOps, ImageFilter
 import os
 from io import BytesIO
 from mimetype import mime_types
+import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/images'
@@ -47,8 +48,7 @@ def prepare_image_response(image, extension, fileName):
         as_attachment=False,
         download_name=fileName + extension
     ))
-    response.headers['X-Image-Extension'] = extension
-    response.headers['X-Image-fileName'] = fileName
+   
     return response
 
 
@@ -110,7 +110,6 @@ def filter_image():
 
 
     return prepare_image_response(image, extension, fileName)
-
 
 
 def get_mime_type_from_extension(extension):
