@@ -19,14 +19,14 @@ document.getElementById('upload').addEventListener('change', function () {
     })
         .then(res => res.json())
         .then(data => {
-            document.getElementById('image').src = data.path + '?v=' + new Date().getTime();
-            document.getElementById('imageNameSpan').textContent = data.filename_with_ext;
+            imageElement.src = data.path;
+
             document.querySelectorAll('button, select').forEach(el => el.disabled = false);
             pathOriginalImage = data.path
             mimeType = data.mime_type
             originalFileName = data.filename
             originalExtension = data.extention
-            imageElement.textContent = originalFileName;
+            imageLabel.textContent = originalFileName;
         });
 });
 

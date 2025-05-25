@@ -21,21 +21,22 @@ def upload_image():
     if file:
         original_filename = file.filename
         name, extension = os.path.splitext(original_filename)  # name = "photo", extension = ".png"
+        extension = extension.replace('.', '').lower()
         path = os.path.join(app.config['UPLOAD_FOLDER'], original_filename)
         file.save(path)
         mimeType = get_mime_type_from_extension(extension)
 
-        return jsonify({'path': path, 'filename_with_ext': original_filename, 'extention':extension, "mime_type":mimeType})
+        return jsonify({'path': path, 'filename': original_filename, 'extention':extension, "mime_type":mimeType})
     return jsonify({'error': 'No image uploaded'}), 400
 
 
 def prepare_image_response(image, extension, fileName):
-    save_format = extension.replace('.', '').upper()
+    save_format = extension.upper()
     if save_format == 'JPG':
         save_format = 'JPEG'
 
     img_io = BytesIO()
-    image.save(img_io, format=save_format)
+    image.save(img_io, format=save_format.upper())
     img_io.seek(0)
 
     mimetype = get_mime_type_from_extension(extension)
