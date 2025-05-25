@@ -27,11 +27,11 @@ def upload_image():
         file.save(path)
         mimeType = get_mime_type_from_extension(extension)
 
-        return jsonify({'path': path, 'filename': original_filename, 'extention':extension, "mime_type":mimeType})
+        return jsonify({'path': path, 'filename': original_filename, 'extention':extension, "mime_type":mimeType, "name":name})
     return jsonify({'error': 'No image uploaded'}), 400
 
 
-def prepare_image_response(image, extension, fileName):
+def prepare_image_response(image, extension, fileName,new_extension=None):
     save_format = extension.upper()
     if save_format == 'JPG':
         save_format = 'JPEG'
@@ -48,6 +48,8 @@ def prepare_image_response(image, extension, fileName):
         as_attachment=False,
         download_name=fileName + extension
     ))
+    if new_extension:
+        response.headers['X-New-Extension'] = new_extension
    
     return response
 
@@ -110,6 +112,33 @@ def filter_image():
 
 
     return prepare_image_response(image, extension, fileName)
+
+
+@app.route('/process/compress', methods=['POST'])
+def compresser_image():
+    image, extension, fileName, error, status = get_image_from_request()
+    typecompress = request.form.get('typecompress')
+    if error:
+        return error, status
+
+    if typecompress == "compress lossless":
+        output = BytesIO()
+        image.save(output, format="PNG", optimize=True)
+        output.seek(0)
+        image = Image.open(output)
+        extension = "png"
+
+    elif typecompress == "compress with loss":
+        if image.mode in ("RGBA", "P"):
+            image = image.convert("RGB")
+        output = BytesIO()
+        image.save(output, format="JPEG", quality=70, optimize=True)
+        output.seek(0)
+        image = Image.open(output)
+        extension = "jpg"
+
+    return prepare_image_response(image, extension, fileName, new_extension=extension)
+
 
 
 def get_mime_type_from_extension(extension):
