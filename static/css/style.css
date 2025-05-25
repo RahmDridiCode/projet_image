@@ -1,0 +1,7 @@
+#image {
+  transition: transform 0.3s ease;
+  transform-origin: center center;
+  max-width: 100%;
+  max-height: 60vh; /* limite la hauteur */
+  object-fit: contain;
+}
