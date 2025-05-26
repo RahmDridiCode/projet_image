@@ -333,15 +333,10 @@ document.getElementById("fileInput").addEventListener('change', function () {
 function coderFile(type) {
     const input = document.getElementById("fileInput");
     const selectedFile = input.files[0];
-  // pour le cacher
-        const formData1 = new FormData();
-    formData1.append("image", input.files[0]);
-
     if (!selectedFile) {
         alert("Veuillez sélectionner un fichier .txt à décompresser.");
         return;
     }
-
     const formData = new FormData();
     formData.append("file", selectedFile);  // Le fichier .txt à décompresser
 

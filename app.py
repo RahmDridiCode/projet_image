@@ -4,7 +4,7 @@ import os
 from io import BytesIO
 from mimetype import mime_types
 import matplotlib.pyplot as plt
-from compression import huffman_compress, shannon_fano_compress,decode_binary_to_bytes,decode_binary_to_bytes_shanon # Import des fonctions
+from compression import huffman_compress, shannon_fano_compress,decode_binary_to_bytes # Import des fonctions
 import ast
 
 
@@ -92,8 +92,17 @@ def process_greyscale():
     return prepare_image_response(image, extension, fileName)
 
 
-@app.route('/process/rotate', methods=['POST'])
-def process_rotate():
+@app.route('/process/rotate-left', methods=['POST'])
+def process_rotate_left():
+    image, extension, fileName, error, status = get_image_from_request()
+    if error:
+        return error, status
+
+    image = image.rotate(90, expand=True)
+    return prepare_image_response(image, extension, fileName)
+
+@app.route('/process/rotate-right', methods=['POST'])
+def process_rotate_right():
     image, extension, fileName, error, status = get_image_from_request()
     if error:
         return error, status
@@ -268,12 +277,8 @@ def decompress_shannon():
     # Recréer le dictionnaire code_map
     code_map = ast.literal_eval(code_map_section)
 
-    # Inverser le dictionnaire pour décodage : {"010": "A", "110": "B"} → {"A": "010"} → {"010": "A"}
-    
-    reverse_map = {v: k for k, v in code_map.items()}
-
     # Décompression
-    decoded_bytes = decode_binary_to_bytes_shanon(encoded_data_section, reverse_map)
+    decoded_bytes = decode_binary_to_bytes(encoded_data_section, code_map)
 
     # Retourner l'image
     img_io = BytesIO(decoded_bytes)
