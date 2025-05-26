@@ -28,7 +28,14 @@ document.getElementById('upload').addEventListener('change', function () {   // 
             originalFileName = data.filename
             originalExtension = data.extention
             imageLabel.textContent = originalFileName;
-            name=data.name            
+            name=data.name     
+            histogramContainer.style.display = "none";  
+            cardcar.style.display = "block";
+
+
+          
+
+
             
         });
 
@@ -272,9 +279,12 @@ function showHistogram() {
         const barWidth = histWidth / 256;
 
         for (let i = 0; i < 256; i++) {
-            const rHeight = (histogramR[i] / maxCount) * histHeight;
-            const gHeight = (histogramG[i] / maxCount) * histHeight;
-            const bHeight = (histogramB[i] / maxCount) * histHeight;
+            const scaleFactor = 15; // augmente la hauteur, ajuste à ton goût
+
+            const rHeight = Math.min((histogramR[i] / maxCount) * histHeight * scaleFactor, histHeight);
+            const gHeight = Math.min((histogramG[i] / maxCount) * histHeight * scaleFactor, histHeight);
+            const bHeight = Math.min((histogramB[i] / maxCount) * histHeight * scaleFactor, histHeight);
+
 
             // Rouge
             histCtx.fillStyle = 'rgba(255,0,0,0.5)';
@@ -345,7 +355,12 @@ function coderFile(type) {
             const url = URL.createObjectURL(blob);
             // 🔁 Afficher l'image dans une balise <img>
             imageElement.src = url;
+            cardcar.style.display = "block" 
             document.querySelectorAll('button, select').forEach(el => el.disabled = false);
+            histogramContainer.style.display = "none"; 
+            cardcar.style.display = "block";
+            
+            
             
         })
         .catch(err => {
