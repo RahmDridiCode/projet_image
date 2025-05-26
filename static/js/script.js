@@ -10,8 +10,7 @@ let rotation = 0;
 let currentScale = 1;
 const imageElement = document.getElementById('image');
 const imageLabel =document.getElementById('imageNameSpan');
-document.getElementById('upload').addEventListener('change', function () {
-    histogramContainer.classList.add('hidden');    // pour le cacher
+document.getElementById('upload').addEventListener('change', function () {   // pour le cacher
     const formData = new FormData();
     formData.append("image", this.files[0]);
 
@@ -99,6 +98,93 @@ async function process(action) {
 
     img.src = imageElement.src;
 }
+
+
+async function compressAsText(method) {
+   
+
+    // Créer le canvas
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+
+    img.onload = async function () {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        // Définir l'extension et le nom de fichier si c’est le premier traitement
+
+        if (!mimeType) {
+            alert("Format non supporté !");
+            return;
+        }
+
+        canvas.toBlob(async function (blob) {
+            const formData = new FormData();
+            formData.append('image', blob, 'image' + originalExtension);
+            formData.append('fileName', originalFileName);
+        
+
+
+
+
+            const response = await fetch(`/process/compress-${method}`, {
+                method: 'POST',
+                body: formData
+            });
+            if (!response.ok) {
+                alert('Erreur lors de la compression');
+                return;
+            }
+
+            const blobResponse = await response.blob();
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blobResponse);
+            link.download = originalFileName + "_" + method + ".txt";
+            link.click();
+
+
+
+        }, mimeType);
+    };
+
+    img.src = imageElement.src;
+}
+
+/*
+function coderFile(type) {
+    const input = document.getElementById("fileInput");
+    const selectedFile = input.files[0];
+
+    if (!selectedFile) {
+        alert("Veuillez sélectionner un fichier .txt à décompresser.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);  // Le fichier .txt à décompresser
+
+    fetch(`/process/decompress-huffman/${type}`, {
+        method: "POST",
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("Échec de la décompression");
+            return response.blob();
+        })
+        .then(blob => {
+            const url = URL.createObjectURL(blob);
+            // 🔁 Afficher l'image dans une balise <img>
+            imageElement.src = url;
+        })
+        .catch(err => {
+            alert("Erreur : " + err.message);
+        });
+}
+
+*/
 
 
 function zoomIn() {
@@ -217,10 +303,54 @@ function showHistogram() {
         const histogramImage = document.getElementById('histogram');
         histogramImage.src = histCanvas.toDataURL();
         histogramImage.classList.add('histogram-style');
-        histogramContainer.classList.remove('hidden'); // pour l’afficher
+        histogramContainer.style.display="block";
+         // pour l’afficher
     };
 
     img.src = imageElement.src;
+}
+document.getElementById("fileInput").addEventListener('change', function () {
+    document.querySelectorAll(".decompress").forEach(el => el.disabled = false);
+})
+
+function coderFile(type) {
+    const input = document.getElementById("fileInput");
+    const selectedFile = input.files[0];
+  // pour le cacher
+        const formData1 = new FormData();
+    formData1.append("image", input.files[0]);
+
+    if (!selectedFile) {
+        alert("Veuillez sélectionner un fichier .txt à décompresser.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);  // Le fichier .txt à décompresser
+
+    fetch("/process/decompress-huffman", {
+        method: "POST",
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("Échec de la décompression");
+            pathOriginalImage = response.path
+            mimeType = response.mime_type
+            originalFileName = response.filename
+            originalExtension = response.extention
+            imageLabel.textContent = originalFileName;
+            return response.blob();
+        })
+        .then(blob => {
+            const url = URL.createObjectURL(blob);
+            // 🔁 Afficher l'image dans une balise <img>
+            imageElement.src = url;
+            document.querySelectorAll('button, select').forEach(el => el.disabled = false);
+            
+        })
+        .catch(err => {
+            alert("Erreur : " + err.message);
+        });
 }
   
 

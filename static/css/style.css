@@ -10,9 +10,11 @@
   min-height: 350px;
   /* même hauteur que quand visible */
 }
-#histogramContainer.hidden {
-  visibility: hidden;
-  position: absolute;
+.hidden {
+  display: none;
+}
+.show {
+  display: block;
 }
 
 .histogram-style {

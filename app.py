@@ -4,6 +4,9 @@ import os
 from io import BytesIO
 from mimetype import mime_types
 import matplotlib.pyplot as plt
+from compression import huffman_compress, shannon_fano_compress,decode_binary_to_bytes  # Import des fonctions
+import ast
+
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/images'
@@ -145,5 +148,122 @@ def get_mime_type_from_extension(extension):
     return mime_types.get(extension.lower(), 'application/octet-stream')
 
 
+def get_image_bytes_from_request():
+    if 'image' not in request.files:
+        return None, ("Image not found in request", 400)
+    file = request.files['image']
+    image_bytes = file.read()
+    return image_bytes, None
+
+@app.route('/process/compress-huffman', methods=['POST'])
+def compress_huffman_route():
+    image_bytes, error = get_image_bytes_from_request()
+    if error:
+        return error
+
+    encoded_data, code_map = huffman_compress(image_bytes)
+
+    txt_content = f"Encoded Data:\n{encoded_data}\n\nCode Map:\n{code_map}"
+    txt_io = BytesIO()
+    txt_io.write(txt_content.encode())
+    txt_io.seek(0)
+
+    filename = request.form.get('fileName', 'image') + "_huffman.txt"
+    return send_file(txt_io,
+                     mimetype="text/plain",
+                     as_attachment=True,
+                     download_name=filename)
+
+@app.route('/process/compress-shannon', methods=['POST'])
+def compress_shannon_route():
+    image_bytes, error = get_image_bytes_from_request()
+    if error:
+        return error
+
+    encoded_data, code_map = shannon_fano_compress(image_bytes)
+
+    txt_content = f"Encoded Data:\n{encoded_data}\n\nCode Map:\n{code_map}"
+    txt_io = BytesIO()
+    txt_io.write(txt_content.encode())
+    txt_io.seek(0)
+
+    filename = request.form.get('fileName', 'image') + "_shannon.txt"
+    return send_file(txt_io,
+                     mimetype="text/plain",
+                     as_attachment=True,
+                     download_name=filename)
+
+
+@app.route('/process/decompress-huffman', methods=['POST'])
+def decompress_huffman():
+    if 'file' not in request.files:
+        return "Aucun fichier envoyé", 400
+    
+    file = request.files['file']
+    content = file.read().decode()
+    encoded_data_section = content.split("Encoded Data:")[1].split("Code Map:")[0].strip()
+    code_map_section = content.split("Code Map:")[1].strip()
+        
+    code_map = ast.literal_eval(code_map_section)  # Convert string dict to real dict
+
+    decoded_image_bytes = decode_binary_to_bytes(encoded_data_section, code_map)
+
+    # Charger l'image à partir des bytes décodés
+    img_io = BytesIO(decoded_image_bytes)
+    img_io.seek(0)
+    """image = Image.open(img_io)  # Charger l'image correctement
+
+    # Sauvegarder dans un nouveau BytesIO pour l'envoi
+    output_io = BytesIO()
+    image.save(output_io, format="PNG")  # Choisir le format approprié (PNG, JPEG...)
+    output_io.seek(0)"""
+
+    mimetype = "image/png"  # ou utiliser get_mime_type_from_extension si tu as la fonction
+    fileName = "decompressed_image"
+    extension="png"
+    response = make_response(send_file(
+        img_io,
+        mimetype=mimetype,
+        as_attachment=False,
+        download_name=fileName +"."+ extension
+    ))
+    return response
+@app.route('/process/decompress-shannon', methods=['POST'])
+def decompress_shannon():
+    if 'file' not in request.files:
+        return "Aucun fichier envoyé", 400
+
+    file = request.files['file']
+    content = file.read().decode()
+
+    try:
+        # Extraire les sections du fichier
+        encoded_data_section = content.split("Encoded Data:")[1].split("Code Map:")[0].strip()
+        code_map_section = content.split("Code Map:")[1].strip()
+
+        # Recréer le dictionnaire code_map
+        code_map = ast.literal_eval(code_map_section)
+
+        # Inverser le dictionnaire pour décodage : {"010": "A", "110": "B"} → {"A": "010"} → {"010": "A"}
+        inverse_code_map = {v: k for k, v in code_map.items()}
+        reverse_map = {v: k for k, v in code_map.items()}
+
+        # Décompression
+        decoded_bytes = decode_binary_to_bytes(encoded_data_section, reverse_map)
+
+        # Retourner l'image
+        img_io = BytesIO(decoded_bytes)
+        img_io.seek(0)
+        return send_file(img_io,
+                         mimetype="image/png",
+                         as_attachment=True,
+                         download_name="decompressed_image.png")
+
+    except Exception as e:
+        return f"Erreur de décompression : {str(e)}", 500
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+
