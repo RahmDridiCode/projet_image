@@ -27,7 +27,9 @@ document.getElementById('upload').addEventListener('change', function () {   // 
             mimeType = data.mime_type
             originalFileName = data.filename
             originalExtension = data.extention
+            size = data.size
             imageLabel.textContent = originalFileName;
+            imageSize.textContent = size+" ko"
             name=data.name     
             histogramContainer.style.display = "none";  
             cardcar.style.display = "block";
@@ -93,6 +95,8 @@ async function process(action) {
 
             const resultBlob = await response.blob();
             imageElement.src = URL.createObjectURL(resultBlob);
+            const sizeInKB = (blob.size / 1024).toFixed(2);
+            imageSize.textContent = sizeInKB + " ko"
             const newExtension = response.headers.get('X-New-Extension') || originalExtension;
 
             if (newExtension != originalExtension){
@@ -357,7 +361,10 @@ function coderFile(type) {
         .then(blob => {
             const url = URL.createObjectURL(blob);
             // 🔁 Afficher l'image dans une balise <img>
+            pathOriginalImage = url
             imageElement.src = url;
+            const sizeInKB = (blob.size / 1024).toFixed(2);
+            imageSize.textContent = sizeInKB + " ko"
             cardcar.style.display = "block" 
             document.querySelectorAll('button, select').forEach(el => el.disabled = false);
             histogramContainer.style.display = "none"; 
@@ -365,6 +372,7 @@ function coderFile(type) {
             const btn = document.getElementById("downloadBtn");
             btn.classList.remove("disabled");
             btn.setAttribute("onclick", "downloadImage()");
+          
 
             
             

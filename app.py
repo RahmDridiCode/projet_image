@@ -36,8 +36,10 @@ def upload_image():
         path = os.path.join(app.config['UPLOAD_FOLDER'], original_filename)
         file.save(path)
         mimeType = get_mime_type_from_extension(extension)
+        file_size_bytes = os.path.getsize(path)
+        file_size_kb = round(file_size_bytes / 1024, 2)
 
-        return jsonify({'path': path, 'filename': original_filename, 'extention':extension, "mime_type":mimeType, "name":name})
+        return jsonify({'path': path, 'filename': original_filename, 'extention':extension, "mime_type":mimeType, "name":name,"size":file_size_kb})
     return jsonify({'error': 'No image uploaded'}), 400
 
 
@@ -118,6 +120,14 @@ def filter_image():
         image = image.filter(ImageFilter.SHARPEN)
     if typeFiltre == "contour":
         image = image.filter(ImageFilter.CONTOUR)
+    elif typeFiltre == "edge_enhance":
+        image = image.filter(ImageFilter.EDGE_ENHANCE)
+    elif typeFiltre == "emboss":
+        image = image.filter(ImageFilter.EMBOSS)
+    elif typeFiltre == "find_edges":
+        image = image.filter(ImageFilter.FIND_EDGES)
+    elif typeFiltre == "smooth":
+        image = image.filter(ImageFilter.SMOOTH)
 
 
 
