@@ -82,3 +82,16 @@ def decode_binary_to_bytes(encoded_data, code_map):
             buffer = ""
     return bytes(decoded_bytes)
 
+
+
+def decode_binary_to_bytes_shanon(encoded_data, code_map):
+    reverse_map = {v: k for k, v in code_map.items()}
+    decoded_bytes = bytearray()
+
+    buffer = ""
+    for bit in encoded_data:
+        buffer += bit
+        if buffer in reverse_map:
+            decoded_bytes.append(int(reverse_map[buffer]))
+            buffer = ""
+    return bytes(decoded_bytes)

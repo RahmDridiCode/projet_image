@@ -4,7 +4,7 @@ import os
 from io import BytesIO
 from mimetype import mime_types
 import matplotlib.pyplot as plt
-from compression import huffman_compress, shannon_fano_compress,decode_binary_to_bytes  # Import des fonctions
+from compression import huffman_compress, shannon_fano_compress,decode_binary_to_bytes,decode_binary_to_bytes_shanon # Import des fonctions
 import ast
 
 
@@ -17,6 +17,13 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @app.route('/')
 def index():
     return render_template('index.html')
+@app.route('/traitement-image')
+def traitement_image():
+    return render_template('traitement.html')
+
+@app.route('/decompression-fichier')
+def decompression_fichier():
+    return render_template('decompression.html')
 
 @app.route('/upload', methods=['POST'])
 def upload_image():
@@ -221,13 +228,20 @@ def decompress_huffman():
     mimetype = "image/png"  # ou utiliser get_mime_type_from_extension si tu as la fonction
     fileName = "decompressed_image"
     extension="png"
+     # Ajouter les infos dans les headers HTTP
+    
     response = make_response(send_file(
         img_io,
         mimetype=mimetype,
         as_attachment=False,
         download_name=fileName +"."+ extension
     ))
+    response.headers['X-MimeType'] = "image/png"
+    response.headers['X-FileName'] = "decompressed_image.png"
+    response.headers['X-Extension'] = "png"
+    response.headers['name'] = "decompressed_image"
     return response
+    
 @app.route('/process/decompress-shannon', methods=['POST'])
 def decompress_shannon():
     if 'file' not in request.files:
@@ -236,31 +250,40 @@ def decompress_shannon():
     file = request.files['file']
     content = file.read().decode()
 
-    try:
-        # Extraire les sections du fichier
-        encoded_data_section = content.split("Encoded Data:")[1].split("Code Map:")[0].strip()
-        code_map_section = content.split("Code Map:")[1].strip()
 
-        # Recréer le dictionnaire code_map
-        code_map = ast.literal_eval(code_map_section)
+    # Extraire les sections du fichier
+    encoded_data_section = content.split("Encoded Data:")[1].split("Code Map:")[0].strip()
+    code_map_section = content.split("Code Map:")[1].strip()
 
-        # Inverser le dictionnaire pour décodage : {"010": "A", "110": "B"} → {"A": "010"} → {"010": "A"}
-        inverse_code_map = {v: k for k, v in code_map.items()}
-        reverse_map = {v: k for k, v in code_map.items()}
+    # Recréer le dictionnaire code_map
+    code_map = ast.literal_eval(code_map_section)
 
-        # Décompression
-        decoded_bytes = decode_binary_to_bytes(encoded_data_section, reverse_map)
+    # Inverser le dictionnaire pour décodage : {"010": "A", "110": "B"} → {"A": "010"} → {"010": "A"}
+    
+    reverse_map = {v: k for k, v in code_map.items()}
 
-        # Retourner l'image
-        img_io = BytesIO(decoded_bytes)
-        img_io.seek(0)
-        return send_file(img_io,
-                         mimetype="image/png",
-                         as_attachment=True,
-                         download_name="decompressed_image.png")
+    # Décompression
+    decoded_bytes = decode_binary_to_bytes_shanon(encoded_data_section, reverse_map)
 
-    except Exception as e:
-        return f"Erreur de décompression : {str(e)}", 500
+    # Retourner l'image
+    img_io = BytesIO(decoded_bytes)
+    img_io.seek(0)
+    mimetype = "image/png"  # ou utiliser get_mime_type_from_extension si tu as la fonction
+    fileName = "decompressed_image"
+    extension="png"
+        # Ajouter les infos dans les headers HTTP
+    
+    response = make_response(send_file(
+    img_io,
+    mimetype=mimetype,
+    as_attachment=False,
+    download_name=fileName +"."+ extension
+        ))
+    response.headers['X-MimeType'] = "image/png"
+    response.headers['X-FileName'] = "decompressed_image.png"
+    response.headers['X-Extension'] = "png"
+    response.headers['name'] = "decompressed_image"
+    return response
 
 
 

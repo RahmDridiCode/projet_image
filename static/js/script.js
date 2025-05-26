@@ -31,6 +31,9 @@ document.getElementById('upload').addEventListener('change', function () {   // 
             name=data.name     
             histogramContainer.style.display = "none";  
             cardcar.style.display = "block";
+            const btn = document.getElementById("downloadBtn");
+            btn.classList.remove("disabled");
+            btn.setAttribute("onclick", "downloadImage()");
 
 
           
@@ -338,17 +341,17 @@ function coderFile(type) {
     const formData = new FormData();
     formData.append("file", selectedFile);  // Le fichier .txt à décompresser
 
-    fetch("/process/decompress-huffman", {
+    fetch(`/process/${type}`, {
         method: "POST",
         body: formData
     })
         .then(response => {
             if (!response.ok) throw new Error("Échec de la décompression");
-            pathOriginalImage = response.path
-            mimeType = response.mime_type
-            originalFileName = response.filename
-            originalExtension = response.extention
-            imageLabel.textContent = originalFileName;
+               mimeType = response.headers.get('X-MimeType');
+               originalFileName = response.headers.get('X-FileName');
+               originalExtension = response.headers.get('X-Extension');
+               name = response.headers.get('name');
+               imageLabel.textContent = originalFileName;
             return response.blob();
         })
         .then(blob => {
@@ -359,6 +362,10 @@ function coderFile(type) {
             document.querySelectorAll('button, select').forEach(el => el.disabled = false);
             histogramContainer.style.display = "none"; 
             cardcar.style.display = "block";
+            const btn = document.getElementById("downloadBtn");
+            btn.classList.remove("disabled");
+            btn.setAttribute("onclick", "downloadImage()");
+
             
             
             
@@ -367,6 +374,20 @@ function coderFile(type) {
             alert("Erreur : " + err.message);
         });
 }
+
+
+function downloadImage() {
+    
+    const url = imageElement.src;
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = imageLabel.textContent || "image.png"; // nom du fichier
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
   
 
 /*
