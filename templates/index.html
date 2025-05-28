@@ -1,90 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <title>Image App</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
-    <link rel="stylesheet" href="/static/css/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
     <style>
+      body {
+        background: linear-gradient(135deg, #2c3e50, #4ca1af);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #fff;
+        min-height: 100vh;
+      }
+
       .glass-card {
         background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(12px);
         border-radius: 20px;
         border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: transform 0.3s ease;
-    }
-    
-    .glass-card:hover {
-        transform: scale(1.03);
-    }
-    
+        transition: all 0.3s ease;
+      }
+
+      .glass-card:hover {
+        transform: translateY(-5px) scale(1.03);
+        box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+      }
+      
+
+      .card-title {
+        font-weight: 600;
+        font-size: 1.5rem;
+      }
+
+      .welcome-title {
+        font-weight: 700;
+        font-size: 2.5rem;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+      }
+
+      .navbar {
+        backdrop-filter: blur(15px);
+        background: rgba(0, 0, 0, 0.7) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      a.navbar-brand,
+      .nav-link {
+        color: #ffffff !important;
+        font-weight: 500;
+      }
+
+      .nav-link:hover {
+        color: #00d4ff !important;
+      }
     </style>
   </head>
   <body>
+    <!-- ✅ NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Image Processor</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('traitement_image') }}"
+                >Traitement Image</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('decompression_fichier') }}"
+                >Décompresser Fichier</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
-   <!-- ✅ NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="{{ url_for('index') }}">Image Processor</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('traitement_image') }}">Traitement Image</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('decompression_fichier') }}">Décompresser Fichier</a>
-        </li>
-      </ul>
+    <!-- ✅ MAIN -->
+    <div class="container py-5">
+      <h1 class="welcome-title text-center mb-5">
+        Bienvenue sur la page d'accueil
+      </h1>
+
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+        <!-- 🖼️ Traitement Image -->
+        <div class="col">
+          <div class="card glass-card text-center p-4 h-100">
+            <div class="card-icon mb-3">
+              <i class="fas fa-image fa-3x text-info"></i>
+            </div>
+            <h5 class="card-title">Traitement Image</h5>
+            <p class="card-description">
+              Appliquez des filtres, transformations et optimisations à vos
+              images en quelques clics.
+            </p>
+            <a
+              href="{{ url_for('traitement_image') }}"
+              class="btn btn-info mt-3 text-white"
+            >
+              <i class="fas fa-magic me-2"></i> Commencer maintenant
+            </a>
+          </div>
+        </div>
+
+        <!-- 🗜️ Décompression Fichier -->
+        <div class="col">
+          <div class="card glass-card text-center p-4 h-100">
+            <div class="card-icon mb-3">
+              <i class="fas fa-file-archive fa-3x text-warning"></i>
+            </div>
+            <h5 class="card-title">Décompresser Fichier</h5>
+            <p class="card-description">
+              Importez un fichier compressé avec Huffman ou Shannon et récupérez
+              votre image originale.
+            </p>
+            <a
+              href="{{ url_for('decompression_fichier') }}"
+              class="btn btn-warning mt-3 text-dark"
+            >
+              <i class="fas fa-download me-2"></i> Commencer maintenant
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</nav>
-
-
-<div class="container py-5">
-  <h1 class="welcome-title text-center mb-5">Bienvenue sur la page d'accueil</h1>
-
-  <div class="row row-cols-1 row-cols-md-2 g-4">
-      <!-- 🖼️ Carte pour Traitement Image -->
-      <div class="col">
-          <div class="card shadow glass-card text-center p-4 h-100">
-              <div class="card-icon mb-3">
-                  <i class="fas fa-image fa-3x text-primary"></i>
-              </div>
-              <h5 class="card-title">Traitement Image</h5>
-              <p class="card-description">
-                  Appliquez des filtres, transformations et optimisations à vos images en quelques clics.
-              </p>
-              <a href="{{ url_for('traitement_image') }}" class="btn btn-primary mt-3">
-                  <i class="fas fa-magic me-2"></i> Commencer maintenant
-              </a>
-          </div>
-      </div>
-
-      <!-- 🗜️ Carte pour Décompression Fichier -->
-      <div class="col">
-          <div class="card shadow glass-card text-center p-4 h-100">
-              <div class="card-icon mb-3">
-                  <i class="fas fa-file-archive fa-3x text-success"></i>
-              </div>
-              <h5 class="card-title">Décompresser Fichier</h5>
-              <p class="card-description">
-                  Importez un fichier compressé avec Huffman ou Shannon et récupérez votre image originale.
-              </p>
-              <a href="{{ url_for('decompression_fichier') }}" class="btn btn-success mt-3">
-                  <i class="fas fa-download me-2"></i> Commencer maintenant
-              </a>
-          </div>
-      </div>
-  </div>
-</div>
-
 
     <script src="/static/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
