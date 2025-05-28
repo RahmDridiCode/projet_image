@@ -1,10 +1,11 @@
 #image {
-  transition: transform 0.3s ease;
-  transform-origin: center center;
-  max-width: 100%;
-  max-height: 60vh; /* limite la hauteur */
-  object-fit: contain;
+  transition: transform 0.3s ease;         /* ajoute une transition fluide au zoom */
+  transform-origin: center center;         /* le point d'origine du zoom est au centre de l'image */
+  max-width: 100%;                         /* l'image ne dépasse pas la largeur du conteneur */
+  max-height: 60vh;                        /* limite la hauteur de l'image à 60% de la hauteur de la fenêtre */
+  object-fit: contain;                     /* ajuste l'image pour qu'elle tienne dans son conteneur sans être déformée */
 }
+
 
 #histogramContainer {
   min-height: 350px;
@@ -17,21 +18,6 @@
   display: block;
 }
 
-.histogram-style {
-  max-width: 100%;
-  height: auto;
-  background-color: #f0f0f0;
-  border: 2px solid #333;
-  padding: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  display: block;
-  margin: 20px auto;
-  transition: transform 0.3s ease;
-}
 
-.histogram-style:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-}
+
 

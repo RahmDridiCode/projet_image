@@ -156,7 +156,7 @@ async function compressAsText(method) {
             const blobResponse = await response.blob();
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blobResponse);
-            link.download = originalFileName + "_" + method + ".txt";
+            link.download = name + "_" + method + ".txt";
             link.click();
 
 
@@ -268,8 +268,8 @@ function showHistogram() {
         const histCtx = histCanvas.getContext('2d');
 
         // Fond agrandi clair
-        histCtx.fillStyle = "#f0f0f0";
-        histCtx.fillRect(0, 0, histCanvas.width, histCanvas.height);
+        //histCtx.fillStyle = "#f0f0f0";
+        //histCtx.fillRect(0, 0, histCanvas.width, histCanvas.height);
 
         // Dessiner axes
         histCtx.strokeStyle = "#333";
@@ -286,7 +286,7 @@ function showHistogram() {
         const barWidth = histWidth / 256;
 
         for (let i = 0; i < 256; i++) {
-            const scaleFactor = 15; // augmente la hauteur, ajuste à ton goût
+            const scaleFactor = 30; // augmente la hauteur, ajuste à ton goût
 
             const rHeight = Math.min((histogramR[i] / maxCount) * histHeight * scaleFactor, histHeight);
             const gHeight = Math.min((histogramG[i] / maxCount) * histHeight * scaleFactor, histHeight);
